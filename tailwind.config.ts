@@ -12,6 +12,12 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      borderColor: {
+        theme: "var(--theme-border-color)"
+      },
+      backgroundColor: {
+        themeSwitchButtonActive: "var(--theme-switch-button-active)"
+      }
     },
   },
   plugins: [],
