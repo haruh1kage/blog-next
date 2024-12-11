@@ -14,12 +14,12 @@ export default function NavBar() {
             <div className="flex items-center justify-between ">
                 <div className="overflow-hidden rounded-xl w-[45px]">
                     <Link href="/">
-                        <Image src="/anon.jpg" width={50} height={40} quality={100} alt="chihaya anon" />
+                        <Image priority src="/anon.jpg" width={50} height={40} quality={100} alt="chihaya anon" />
                     </Link>
                 </div>
                 <nav>
                     <ul className="hidden md:flex rounded-full border border-theme">
-                        {links.map(({ name, href }) => <li><Link className="mx-2 py-2 px-4 block" href={href} key={href}>{name}</Link></li>)}
+                        {links.map(({ name, href }) => <li key={href}><Link className="mx-2 py-2 px-4 block" href={href} key={href}>{name}</Link></li>)}
                     </ul>
                 </nav>
                 <div className="hidden md:flex">
