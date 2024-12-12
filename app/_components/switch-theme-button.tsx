@@ -36,12 +36,11 @@ const getDefaultTheme: () => Theme | undefined = () => {
 export default function SwitchThemeButton() {
   const [themeState, setThemeState] = useState<Theme | undefined>();
   const [darkMode, setDarkMode] = useState<boolean | undefined>();
-  const [clickPosition, setClickPosition] = useState<{
-    x: number;
-    y: number;
-  }>();
+
   const darkQuery = useRef<MediaQueryList>(null);
   const isMismatchTransition = useRef<boolean>(true);
+  const clickPosition = useRef<{ x: number; y: number }>(null);
+  const systemButtonRef = useRef<HTMLButtonElement>(null);
 
   /**
    * Set theme with localStorage
@@ -58,7 +57,7 @@ export default function SwitchThemeButton() {
   const handleClickToggle = useCallback(
     (value: Theme, event: MouseEvent) => {
       setTheme(value);
-      setClickPosition({ x: event.clientX, y: event.clientY });
+      clickPosition.current = { x: event.clientX, y: event.clientY };
     },
     [setTheme]
   );
@@ -77,6 +76,13 @@ export default function SwitchThemeButton() {
    */
   useEffect(() => {
     setThemeState(getDefaultTheme());
+    if (systemButtonRef.current && getDefaultTheme() === 'system') {
+      const clientRect = systemButtonRef.current.getBoundingClientRect();
+      clickPosition.current = {
+        x: clientRect.left + clientRect.width / 2,
+        y: clientRect.top + clientRect.height / 2,
+      };
+    }
     darkQuery.current = matchMedia('(prefers-color-scheme: dark)');
     darkQuery.current.addEventListener('change', mediaChangeHandler);
     return () => {
@@ -107,8 +113,8 @@ export default function SwitchThemeButton() {
       }
     });
     transition.ready.then(async () => {
-      if (!clickPosition) return;
-      const { x, y } = clickPosition;
+      if (!clickPosition.current) return;
+      const { x, y } = clickPosition.current;
       const r = Math.hypot(
         Math.max(x, innerWidth - x),
         Math.max(y, innerHeight - y)
@@ -133,116 +139,6 @@ export default function SwitchThemeButton() {
     });
   }, [darkMode]);
 
-  // const toggleTheme = useCallback(() => {
-  //   if (theme === 'system' || theme === 'light') {
-  //     if (theme === 'system') {
-  //       if (getSystemTheme() === 'dark') {
-  //         document.documentElement.classList.add(`dark`);
-  //       } else {
-  //         document.documentElement.classList.remove(`dark`);
-  //       }
-  //     } else {
-  //       document.documentElement.classList.remove(`dark`);
-  //     }
-  //   } else {
-  //     document.documentElement.classList.add(`dark`);
-  //   }
-  // }, [theme]);
-
-  // useEffect(() => {
-  //   console.log('theme', theme);
-  //   localStorage.setItem('theme', theme ?? 'system');
-  //   toggleTheme();
-  // }, [theme, toggleTheme]);
-
-  // const [theme, setTheme] = useState()
-  // const buttonRef = useRef<HTMLButtonElement>(null)
-  // const isMounted = useRef<boolean>(false);
-  // const [theme, setTheme] = useState<string>(() => {
-  //     const theme = localStorage.getItem('theme')
-  //     return theme ? theme : 'system'
-  // })
-  // const [clickPosition, setClickPosition] = useState<{ x: number, y: number }>({ x: 0, y: 0 })
-  // const darkQuery = window.matchMedia('(prefers-color-scheme: dark)')
-
-  // const onWindowMatch = () => {
-  //     if (localStorage.getItem('theme') === 'dark' || (!("theme" in localStorage) && darkQuery.matches)) {
-  //         document.documentElement.classList.add('dark')
-  //     } else {
-  //         document.documentElement.classList.remove('dark')
-  //     }
-  // }
-
-  // const toggleTheme = useCallback(() => {
-  //     const transition = document.startViewTransition(() => {
-  //         switch (theme) {
-  //             case 'light':
-  //                 document.documentElement.classList.remove('dark')
-  //                 localStorage.setItem('theme', 'light')
-  //                 break;
-  //             case 'dark':
-  //                 document.documentElement.classList.add('dark')
-  //                 localStorage.setItem('theme', 'dark')
-  //                 break;
-  //             default:
-  //                 localStorage.removeItem('theme')
-  //                 onWindowMatch()
-  //                 break;
-  //         }
-  //     })
-
-  //     transition.ready.then(() => {
-  //         const { x, y } = clickPosition
-  //         const r = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y))
-  //         const isDark = document.documentElement.classList.contains('dark')
-  //         const clipPath = [
-  //             `circle(0px at ${x}px ${y}px)`,
-  //             `circle(${r}px at ${x}px ${y}px)`,
-  //         ]
-  //         document.documentElement.animate({
-  //             clipPath: isDark
-  //                 ? [...clipPath].reverse()
-  //                 : clipPath,
-  //         }, {
-  //             duration: 500,
-  //             easing: 'ease-out',
-  //             pseudoElement: isDark
-  //                 ? '::view-transition-old(root)'
-  //                 : '::view-transition-new(root)'
-  //         })
-  //     })
-  // }, [theme, clickPosition])
-
-  // const handleClickToggle = useCallback((select: string, e: MouseEvent) => {
-  //     const { clientX, clientY } = e
-  //     setTheme(select)
-  //     setClickPosition({ x: clientX, y: clientY })
-  // }, [theme])
-
-  // const handleDarkQueryChange = useCallback(() => {
-  //     if (!localStorage.getItem('theme')) {
-  //         toggleTheme()
-  //     }
-  // }, [clickPosition])
-
-  // useEffect(() => {
-  //     if(!isMounted.current) return
-  //     onWindowMatch()
-  //     toggleTheme()
-  // }, [theme, handleDarkQueryChange])
-
-  // useEffect(() => {
-  //     if (buttonRef.current) {
-  //         setClickPosition({ x: buttonRef.current.offsetLeft, y: buttonRef.current.offsetTop })
-  //     }
-  //     darkQuery.addEventListener('change', handleDarkQueryChange)
-  //     isMounted.current = true
-  //     return () => {
-  //         darkQuery.removeEventListener('change', handleDarkQueryChange)
-  //         isMounted.current = false
-  //     }
-  // }, [])
-
   return (
     <>
       <script
@@ -253,6 +149,11 @@ export default function SwitchThemeButton() {
           <button
             onClick={(e) => handleClickToggle(itemTheme, e)}
             key={itemTheme}
+            ref={(ref) => {
+              if (itemTheme === 'system') {
+                systemButtonRef.current = ref;
+              }
+            }}
             className={`block p-2 hover:bg-themeSwitchButtonActive rounded-xl ${
               itemTheme === themeState ? 'bg-themeSwitchButtonActive' : ''
             }`}
