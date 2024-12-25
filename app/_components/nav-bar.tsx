@@ -1,12 +1,12 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import SwitchThemeButton from './switch-theme-button'
+import Image from 'next/image';
+import Link from 'next/link';
+import SwitchThemeButton from './switch-theme-button';
 
 const links = [
   { name: 'Home', href: '/' },
-  { name: 'Blog', href: 'blog' },
-  { name: 'About', href: 'about' },
-]
+  { name: 'Blog', href: '/blog' },
+  { name: 'Projects', href: '/projects' },
+];
 
 export default function NavBar() {
   return (
@@ -42,5 +42,5 @@ export default function NavBar() {
         <div className="md:hidden">=</div>
       </div>
     </header>
-  )
+  );
 }
