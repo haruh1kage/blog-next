@@ -7,16 +7,7 @@ export default function Home() {
       <main className="px-8">
         <Hero />
         <div className="mt-8">
-          <section>
-            <h2 className="text-xl font-bold">
-              Tech Stack <hr />
-            </h2>
-          </section>
-          <section>
-            <h2 className="text-xl font-bold">
-              Projects <hr />
-            </h2>
-          </section>
+          
         </div>
       </main>
     </div>
