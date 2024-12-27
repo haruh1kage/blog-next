@@ -30,7 +30,7 @@ export default function RootLayout({
       >
         <NavBar />
         {/* <NavBar /> */}
-        {children}
+        <div className="mt-[80px]">{children}</div>
       </body>
     </html>
   );
